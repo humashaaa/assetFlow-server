@@ -204,6 +204,7 @@ async function run() {
       const result = await assetCollection.find(query).toArray();
       res.send(result);
     });
+   
 
     // delete asset data from db
     app.delete("/assets/:id", async (req, res) => {
@@ -236,6 +237,65 @@ async function run() {
       const result = await assetCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+
+    // get all the assets employee requested
+    app.get("/asset/requestAsset/:email", async (req, res) => {
+      const query = { email: req.params.email };
+      const result = await assetCollection.find(query).toArray();
+      res.send(result);
+    });
+
+// update asset request page
+app.patch("/assets/requestAsset/:id", async (req, res) => {
+  const item = req.body;
+  const id = req.params.id;
+  console.log(id);
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      requestStatus : 'pending',
+      requestDate : new Date().toLocaleDateString(),
+      addNote : item.addNote,
+      requesterName : item.requesterName,
+      requesterEmail : item.requesterEmail,
+      addNote : item.addNote
+    },
+  };
+  const result = await assetCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
+
+// update asset for all request page
+
+app.patch("/assets/:id/allRequest", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      requestStatus : 'Approved',
+    },
+  };
+  const result = await assetCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
+
+// reject update asset for all request page
+app.patch("/assets/:id/reject", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      requestStatus : 'Rejected',
+    },
+  };
+  const result = await assetCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
+
+
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
