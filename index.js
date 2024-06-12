@@ -148,11 +148,33 @@ async function run() {
         $set: {
           isJoin: "true",
           hrEmail: user?.email,
+          companyName : user?.companyName,
+         
         },
       };
       const result = await userCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+
+    // update user profile
+
+    app.patch("/user/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+
+      const user = req.body
+      // console.log({user});
+      const updatedDoc = {
+        $set: {
+          name : user.name,
+          photo : user.photo
+        }
+      };
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
+
+
 
     // remove employee from a team
 
@@ -160,13 +182,14 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const user = req.body
-      console.log(user);
+      // console.log({user});
       const updatedDoc = {
         $set: {
           isJoin: "false"
         },
         $unset: {
-          hrEmail: ""
+          hrEmail: "",
+          companyName : ""
         }
       };
       const result = await userCollection.updateOne(filter, updatedDoc);
@@ -204,6 +227,17 @@ async function run() {
       const result = await assetCollection.find(query).toArray();
       res.send(result);
     });
+
+    // // for filter
+    // app.get("/asset/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const filter = req.query.filter;
+    //   let query = {};
+    //   if (filter) query = { category: filter, email };
+    //   console.log(query);
+    //   const result = await assetCollection.find(query).toArray();
+    //   res.send(result);
+    // });
    
 
     // delete asset data from db
@@ -273,6 +307,7 @@ app.patch("/assets/:id/allRequest", async (req, res) => {
   const updatedDoc = {
     $set: {
       requestStatus : 'Approved',
+      approveDate : new Date().toLocaleDateString()
     },
   };
   const result = await assetCollection.updateOne(filter, updatedDoc);
@@ -287,6 +322,36 @@ app.patch("/assets/:id/reject", async (req, res) => {
     $set: {
       requestStatus : 'Rejected',
     },
+  };
+  const result = await assetCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
+
+// return product
+app.patch("/assets/return/:id", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      requestStatus : 'Returned',
+    },
+  };
+  const result = await assetCollection.updateOne(filter, updatedDoc);
+  res.send(result);
+});
+
+// pending request cancel
+app.patch("/assets/cancel/:id", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedDoc = {
+    $unset: {
+      requestStatus : '',
+      requestDate : '',
+      addNote : '',
+      requesterName : '',
+      requesterEmail : '',
+      addNote : ''    },
   };
   const result = await assetCollection.updateOne(filter, updatedDoc);
   res.send(result);
