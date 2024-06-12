@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://assignment-12-ef2db.web.app"],
     credentials: true,
   })
 );
@@ -190,7 +190,8 @@ async function run() {
         $unset: {
           hrEmail: "",
           companyName : ""
-        }
+        },
+        // $inc : { "user.limit": -1 } ,
       };
       const result = await userCollection.updateOne(filter, updatedDoc);
       res.send(result);
@@ -362,10 +363,10 @@ app.patch("/assets/cancel/:id", async (req, res) => {
 
 
 
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
   }
 }
