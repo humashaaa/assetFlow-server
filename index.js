@@ -98,6 +98,11 @@ async function run() {
       });
     });
 
+
+
+
+
+
     // hr
 
     app.get("/users/hr/:email", verifiedToken, async (req, res) => {
@@ -113,6 +118,26 @@ async function run() {
       }
       res.send({ hr });
     });
+
+
+       // Employee User
+       app.get("/users/employee/:email", async (request, response) => {
+        const email = request.params.email;
+        const query = { email: email };
+        const user = await userCollection.findOne(query);
+        let employee = false;
+        if (user) {
+          employee = user?.role === "employee";
+        }
+        response.send({ employee });
+      });
+
+
+
+
+
+
+
 
     app.get("/user/:email", async (req, res) => {
       const query = { email: req.params.email };
@@ -172,6 +197,19 @@ async function run() {
       const result = await userCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+    // app.patch("/user/increaseLimit/:email", async (req, res) => {
+    //   const filter = { email: req.params.email };
+
+    //   const {additionalLimit} = req.body
+    //   // console.log({user});
+    //   // const updatedDoc = {
+    //   //   // $inc : {
+    //   //   //   limit : parseInt(additionalLimit)
+    //   //   // }
+    //   // };
+    //   const result = await userCollection.updateOne(filter);
+    //   res.send(result);
+    // });
 
 
 
@@ -191,7 +229,6 @@ async function run() {
           hrEmail: "",
           companyName : ""
         },
-        // $inc : { "user.limit": -1 } ,
       };
       const result = await userCollection.updateOne(filter, updatedDoc);
       res.send(result);
@@ -336,6 +373,9 @@ app.patch("/assets/return/:id", async (req, res) => {
     $set: {
       requestStatus : 'Returned',
     },
+    $inc : {
+      productQuantity : 1
+    }
   };
   const result = await assetCollection.updateOne(filter, updatedDoc);
   res.send(result);
